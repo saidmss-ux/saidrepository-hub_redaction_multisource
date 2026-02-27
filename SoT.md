@@ -114,3 +114,6 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Backend MVP FastAPI initialisé avec endpoints contractuels : `/upload`, `/download-from-url`, `/extract`, `/video-to-text`, `/ai-assist` + `/health`.
 - Contrat de réponse unifié `BaseResponse` appliqué à tous les endpoints.
 - Tests API de base ajoutés pour validation de contrat et gestion d’erreur 422.
+
+- Le flux MVP couvre maintenant upload -> stockage mémoire -> extraction avec gestion d’erreur structurée (`success=false`).
+- Endpoint `/ai-assist` gère explicitement les cas clé API désactivée via contrat JSON stable.

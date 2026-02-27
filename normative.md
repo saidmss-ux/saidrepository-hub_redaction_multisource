@@ -43,3 +43,5 @@ Toute modification technique doit être reflétée dans :
 
 - Toute évolution backend doit préserver `BaseResponse` comme contrat de sortie standard.
 - Les endpoints ajoutés/modifiés doivent être couverts par des tests API minimaux.
+
+- Les erreurs fonctionnelles doivent rester contractuelles (`success=false`, `error` explicite) au lieu de réponses non structurées.
