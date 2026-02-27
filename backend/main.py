@@ -122,6 +122,38 @@ async def extract(payload: ExtractRequest) -> BaseResponse:
     )
 
 
+@app.get("/sources", response_model=BaseResponse)
+async def list_sources() -> BaseResponse:
+    items = [
+        {
+            "file_id": file_id,
+            "file_name": item.get("file_name"),
+            "file_type": item.get("file_type"),
+            "created_at": item.get("created_at"),
+        }
+        for file_id, item in SOURCES.items()
+    ]
+    return _ok("sources_response", {"items": items, "count": len(items)})
+
+
+@app.get("/source/{file_id}", response_model=BaseResponse)
+async def get_source(file_id: str) -> BaseResponse:
+    source = SOURCES.get(file_id)
+    if not source:
+        return _err("source_response", error="file_not_found", data={"file_id": file_id})
+
+    return _ok(
+        "source_response",
+        {
+            "file_id": file_id,
+            "file_name": source.get("file_name"),
+            "file_type": source.get("file_type"),
+            "content": source.get("content", ""),
+            "created_at": source.get("created_at"),
+        },
+    )
+
+
 @app.post("/video-to-text", response_model=BaseResponse)
 async def video_to_text(payload: VideoToTextRequest) -> BaseResponse:
     return _ok(

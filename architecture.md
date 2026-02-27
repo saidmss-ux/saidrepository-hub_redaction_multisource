@@ -254,7 +254,7 @@ async def upload_file():
 
 
 
-🎁 Bonus : conversions JSON → modèles front
+Bonus : conversions JSON → modèles front
 
 Avec le schéma OpenAPI généré, tu peux :
 
@@ -272,3 +272,5 @@ Générer des tests e2e
 
 - Stockage temporaire en mémoire (`SOURCES`) pour relier upload/download à extraction.
 - Téléchargement URL MVP avec prévisualisation de contenu texte (bornée) et erreur contractuelle.
+
+- Endpoints additionnels MVP de support UI: `GET /sources`, `GET /source/{file_id}`.

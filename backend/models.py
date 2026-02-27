@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional
 
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -23,7 +23,7 @@ class DownloadFromUrlRequest(BaseModel):
 
 class ExtractRequest(BaseModel):
     file_id: str = Field(..., min_length=1)
-    mode: str = Field(default="text", min_length=1)
+    mode: Literal["text", "summary"] = "text"
 
 
 class VideoToTextRequest(BaseModel):

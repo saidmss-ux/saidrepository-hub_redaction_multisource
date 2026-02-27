@@ -117,3 +117,5 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 
 - Le flux MVP couvre maintenant upload -> stockage mémoire -> extraction avec gestion d’erreur structurée (`success=false`).
 - Endpoint `/ai-assist` gère explicitement les cas clé API désactivée via contrat JSON stable.
+
+- Plan d'exécution détaillé maintenu dans `implementation_plan.md` pour suivi des phases backend.

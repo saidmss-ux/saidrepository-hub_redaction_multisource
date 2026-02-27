@@ -45,3 +45,5 @@ Toute modification technique doit être reflétée dans :
 - Les endpoints ajoutés/modifiés doivent être couverts par des tests API minimaux.
 
 - Les erreurs fonctionnelles doivent rester contractuelles (`success=false`, `error` explicite) au lieu de réponses non structurées.
+
+- Le fichier `implementation_plan.md` doit être mis à jour à chaque avancée majeure d'implémentation.
