@@ -263,3 +263,9 @@ Générer automatiquement les types TypeScript Phaser/React
 Construire les formulaires UI automatiquement dans Builder.io
 
 Générer des tests e2e
+
+## Implémentation MVP (état courant)
+
+- `backend/models.py` : modèles Pydantic de requête/réponse.
+- `backend/main.py` : service FastAPI et endpoints contractuels.
+- `tests/test_api.py` : tests de contrat (`BaseResponse`) et validation d’entrée.
