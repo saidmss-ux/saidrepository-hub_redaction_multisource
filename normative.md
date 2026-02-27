@@ -38,3 +38,8 @@ Toute modification technique doit être reflétée dans :
 - Version obligatoire pour chaque release
 - Tests unitaires avant merge
 - Build interdit si contrat JSON non respecté
+
+## Traçabilité des changements
+
+- Toute évolution backend doit préserver `BaseResponse` comme contrat de sortie standard.
+- Les endpoints ajoutés/modifiés doivent être couverts par des tests API minimaux.

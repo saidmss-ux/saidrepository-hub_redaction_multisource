@@ -108,3 +108,9 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Tests extraction minimum 3 formats
 - Test échec téléchargement HTTP
 - Pas de build sans validation endpoint
+
+## Statut d’implémentation actuel
+
+- Backend MVP FastAPI initialisé avec endpoints contractuels : `/upload`, `/download-from-url`, `/extract`, `/video-to-text`, `/ai-assist` + `/health`.
+- Contrat de réponse unifié `BaseResponse` appliqué à tous les endpoints.
+- Tests API de base ajoutés pour validation de contrat et gestion d’erreur 422.
