@@ -269,3 +269,6 @@ Générer des tests e2e
 - `backend/models.py` : modèles Pydantic de requête/réponse.
 - `backend/main.py` : service FastAPI et endpoints contractuels.
 - `tests/test_api.py` : tests de contrat (`BaseResponse`) et validation d’entrée.
+
+- Stockage temporaire en mémoire (`SOURCES`) pour relier upload/download à extraction.
+- Téléchargement URL MVP avec prévisualisation de contenu texte (bornée) et erreur contractuelle.
