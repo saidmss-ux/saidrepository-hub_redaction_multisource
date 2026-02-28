@@ -1,0 +1,8 @@
+{
+  "name": "docuhub-frontend-integration",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test frontend/tests/apiClient.test.mjs"
+  }
+}
