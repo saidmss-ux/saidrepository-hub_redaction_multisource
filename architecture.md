@@ -282,3 +282,5 @@ Générer des tests e2e
 - Gestion des erreurs centralisée dans `main.py` (handlers globaux) pour homogénéité du contrat API.
 
 - Middlewares backend: correlation ID (`x-request-id`) + limite de concurrence (retour `over_capacity`).
+
+- Couche frontend d'intégration: `frontend/src/api`, `frontend/src/services`, `frontend/src/state` (séparation API/état/UI).

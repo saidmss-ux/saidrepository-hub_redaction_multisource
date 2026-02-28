@@ -53,3 +53,5 @@ Toute modification technique doit être reflétée dans :
 - Toute erreur métier doit remonter via `ServiceError` puis être sérialisée en `BaseResponse` par handler global.
 
 - Le contrat `BaseResponse` doit aussi s'appliquer aux erreurs de surcharge (`over_capacity`) et aux erreurs globales non prévues.
+
+- Le frontend doit consommer uniquement des réponses enveloppées `BaseResponse` via un client API centralisé.

@@ -46,3 +46,5 @@
 - [x] Observabilité production: logs structurés JSON + `x-request-id` + métriques de durée extraction.
 
 - [x] Résilience: garde de concurrence configurable et erreur contractuelle `over_capacity`.
+
+- [x] Couche frontend d'intégration API v1 ajoutée (client centralisé, service façade, état contractuel, retry over_capacity).
