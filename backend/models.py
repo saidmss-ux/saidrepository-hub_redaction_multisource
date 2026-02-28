@@ -1,14 +1,20 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
+ExtractMode = Literal["text", "summary"]
+
+
+class ErrorObject(BaseModel):
+    code: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
 
 class BaseResponse(BaseModel):
-    type: str = Field(..., description="Response type identifier")
-    version: int = Field(default=1, ge=1)
     success: bool
-    data: Dict[str, Any] = Field(default_factory=dict)
-    error: Optional[str] = None
+    data: dict[str, Any] | None = None
+    error: ErrorObject | None = None
 
 
 class UploadRequest(BaseModel):
@@ -22,8 +28,8 @@ class DownloadFromUrlRequest(BaseModel):
 
 
 class ExtractRequest(BaseModel):
-    file_id: str = Field(..., min_length=1)
-    mode: Literal["text", "summary"] = "text"
+    file_id: int = Field(..., ge=1)
+    mode: ExtractMode = "text"
 
 
 class VideoToTextRequest(BaseModel):

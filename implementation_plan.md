@@ -32,3 +32,7 @@
 - No enterprise auth/roles.
 - No auto-publishing/CMS features.
 - No long-form autonomous generation.
+
+- [x] Migration du stockage mémoire vers SQLite SQLAlchemy + repository pattern.
+
+- [x] Préfixe API `/api/v1` appliqué sur les endpoints contractuels.

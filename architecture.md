@@ -274,3 +274,7 @@ Générer des tests e2e
 - Téléchargement URL MVP avec prévisualisation de contenu texte (bornée) et erreur contractuelle.
 
 - Endpoints additionnels MVP de support UI: `GET /sources`, `GET /source/{file_id}`.
+
+- Backend implémenté en modules: `api/v1`, `services`, `repositories`, `db` (SQLAlchemy SQLite).
+
+- Versionnement API actif via préfixe `/api/v1`.
