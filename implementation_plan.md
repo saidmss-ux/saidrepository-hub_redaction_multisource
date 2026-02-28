@@ -65,9 +65,3 @@
 - Added stateless auth and RBAC only on additive product endpoints to preserve existing v1 behavior compatibility.
 - Added operational safeguards (rate limits, security headers) as middleware-level controls configurable per environment.
 - Added Prometheus metrics and Alembic governance to improve production observability and schema safety.
-
-
-## Phase roadmap_deployment alignment
-- [x] Phase A foundations: abstractions/config knobs added (tenancy, audit, worker, distributed rate limit, feature flags).
-- [x] Phase B initial additive schema: tenant columns + governance tables (`audit_events`, `refresh_tokens`, `background_jobs`, `feature_flags`).
-- [x] Tenant-aware auth context and repository filtering introduced with `TENANCY_ENFORCED=false` default for safe rollout.

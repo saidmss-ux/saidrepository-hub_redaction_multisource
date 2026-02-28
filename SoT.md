@@ -139,8 +139,6 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Local = SQLite ; staging/production = PostgreSQL.
 - CI/CD bloque toute intégration si tests backend/frontend échouent.
 - Déploiement staging via branche `staging`; production via `main` ou tag versionné.
-- Migration DB non destructive et traçable via Alembic (révisions additives).
+- Migration DB non destructive et traçable via `schema_migrations`.
 
 - Operational hardening ajouté: JWT+RBAC, rate limiting, métriques Prometheus, gouvernance Alembic sans rupture API v1.
-
-- Foundations multi-tenant/audit/worker/feature-flags ajoutées de façon additive (flags désactivés par défaut).

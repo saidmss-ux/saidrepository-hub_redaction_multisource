@@ -254,7 +254,7 @@ async def upload_file():
 
 
 
-🎁 Bonus : conversions JSON → modèles front
+Bonus : conversions JSON → modèles front
 
 Avec le schéma OpenAPI généré, tu peux :
 

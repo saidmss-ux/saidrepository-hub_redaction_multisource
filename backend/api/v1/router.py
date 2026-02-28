@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from backend.api.deps import get_auth_context, get_tenant_id, require_role
+from backend.api.deps import require_role
 from backend.db.session import get_db_session
 from backend.models import (
     AIAssistRequest,
@@ -16,7 +16,7 @@ from backend.models import (
     VideoToTextRequest,
 )
 from backend.services import product_service, source_service
-from backend.services.auth_service import AuthContext, create_access_token
+from backend.services.auth_service import create_access_token
 from backend.services.response import ok
 
 router = APIRouter()
@@ -69,27 +69,17 @@ async def get_source(file_id: int, db: Session = Depends(get_db_session)) -> Bas
 async def create_project(
     payload: ProjectCreateRequest,
     db: Session = Depends(get_db_session),
-    auth: AuthContext = Depends(require_role("admin", "user")),
-    tenant_id: str = Depends(get_tenant_id),
+    _auth=Depends(require_role("admin", "user")),
 ) -> BaseResponse:
-    return ok(
-        product_service.create_project(
-            db,
-            name=payload.name,
-            description=payload.description,
-            tenant_id=tenant_id,
-            actor_id=auth.user_id,
-        )
-    )
+    return ok(product_service.create_project(db, name=payload.name, description=payload.description))
 
 
 @router.get("/projects", response_model=BaseResponse)
 async def list_projects(
     db: Session = Depends(get_db_session),
     _auth=Depends(require_role("admin", "user")),
-    tenant_id: str = Depends(get_tenant_id),
 ) -> BaseResponse:
-    return ok(product_service.list_projects(db, tenant_id=tenant_id))
+    return ok(product_service.list_projects(db))
 
 
 @router.post("/projects/{project_id}/documents", response_model=BaseResponse)
@@ -97,8 +87,7 @@ async def add_project_document(
     project_id: int,
     payload: ProjectDocumentCreateRequest,
     db: Session = Depends(get_db_session),
-    auth: AuthContext = Depends(require_role("admin", "user")),
-    tenant_id: str = Depends(get_tenant_id),
+    _auth=Depends(require_role("admin", "user")),
 ) -> BaseResponse:
     return ok(
         product_service.add_document_to_project(
@@ -106,8 +95,6 @@ async def add_project_document(
             project_id=project_id,
             source_id=payload.source_id,
             title=payload.title,
-            tenant_id=tenant_id,
-            actor_id=auth.user_id,
         )
     )
 
@@ -117,9 +104,8 @@ async def list_project_documents(
     project_id: int,
     db: Session = Depends(get_db_session),
     _auth=Depends(require_role("admin", "user")),
-    tenant_id: str = Depends(get_tenant_id),
 ) -> BaseResponse:
-    return ok(product_service.list_project_documents(db, project_id=project_id, tenant_id=tenant_id))
+    return ok(product_service.list_project_documents(db, project_id=project_id))
 
 
 @router.post("/projects/{project_id}/batches/extract", response_model=BaseResponse)
@@ -127,23 +113,16 @@ async def run_project_batch_extract(
     project_id: int,
     payload: ProjectBatchExtractRequest,
     db: Session = Depends(get_db_session),
-    auth: AuthContext = Depends(require_role("admin", "user")),
-    tenant_id: str = Depends(get_tenant_id),
+    _auth=Depends(require_role("admin", "user")),
 ) -> BaseResponse:
-    return ok(
-        product_service.run_project_batch_extract(
-            db,
-            project_id=project_id,
-            mode=payload.mode,
-            tenant_id=tenant_id,
-            actor_id=auth.user_id,
-        )
-    )
+    return ok(product_service.run_project_batch_extract(db, project_id=project_id, mode=payload.mode))
+
+
 
 
 @router.post("/auth/token", response_model=BaseResponse)
 async def issue_token(payload: AuthTokenRequest) -> BaseResponse:
-    token = create_access_token(sub=payload.user_id, role=payload.role, tenant_id=payload.tenant_id)
+    token = create_access_token(sub=payload.user_id, role=payload.role)
     return ok({"access_token": token, "token_type": "bearer"})
 
 
