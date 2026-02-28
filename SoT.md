@@ -108,3 +108,25 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Tests extraction minimum 3 formats
 - Test échec téléchargement HTTP
 - Pas de build sans validation endpoint
+
+## Statut d’implémentation actuel
+
+- Backend MVP FastAPI initialisé avec endpoints contractuels : `/upload`, `/download-from-url`, `/extract`, `/video-to-text`, `/ai-assist` + `/health`.
+- Contrat de réponse unifié `BaseResponse` appliqué à tous les endpoints.
+- Tests API de base ajoutés pour validation de contrat et gestion d’erreur 422.
+
+- Le flux MVP couvre maintenant upload -> stockage mémoire -> extraction avec gestion d’erreur structurée (`success=false`).
+- Endpoint `/ai-assist` gère explicitement les cas clé API désactivée via contrat JSON stable.
+
+- Plan d'exécution détaillé maintenu dans `implementation_plan.md` pour suivi des phases backend.
+
+- Backend stabilisé en architecture modulaire (routers/services/repository) avec persistance SQLite pour le MVP.
+
+- Stabilisation backend orientée intégration frontend: contrat erreur unifié et documentation API backend dédiée.
+
+- Backend prêt intégration fullstack contrôlée: observabilité structurée, request ID, et protection surcharge configurable.
+
+- Intégration frontend-backend renforcée via couche client API v1 centralisée et mapping d'erreurs contractuel.
+
+
+- Product Layer introduite (Project/Document/Batch) en alignement strict avec la roadmap Fullstack/Stabilisation, sans rupture du contrat API v1.
