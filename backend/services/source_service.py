@@ -1,0 +1,117 @@
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
+
+from sqlalchemy.orm import Session
+
+from backend.core.config import settings
+from backend.models import ExtractMode
+from backend.repositories.source_repository import SourceRepository
+from backend.services.errors import ServiceError
+from backend.services.security import validate_public_http_url
+
+
+def upload_source(session: Session, *, file_name: str, file_type: str, content: str) -> dict:
+    if len(content) > settings.max_upload_chars:
+        raise ServiceError(
+            code="upload_too_large",
+            message="Upload content exceeds configured limit",
+            details={"max_upload_chars": settings.max_upload_chars},
+        )
+
+    repo = SourceRepository(session)
+    source = repo.create_source(
+        file_name=file_name,
+        file_type=file_type.lower(),
+        content=content,
+    )
+    return {
+        "file_id": source.id,
+        "file_name": source.file_name,
+        "file_type": source.file_type,
+        "stored": True,
+    }
+
+
+def download_from_url(session: Session, *, url: str) -> dict:
+    safe_url = validate_public_http_url(url)
+    try:
+        with urlopen(safe_url, timeout=settings.url_download_timeout_s) as response:  # nosec B310
+            raw = response.read(settings.max_download_chars)
+            content = raw.decode("utf-8", errors="replace")
+    except HTTPError as exc:
+        raise ServiceError(code="network_http_error", message="HTTP error while downloading", details={"status": exc.code})
+    except URLError as exc:
+        raise ServiceError(code="network_url_error", message="Network error while downloading", details={"reason": str(exc.reason)})
+    except TimeoutError:
+        raise ServiceError(code="network_timeout", message="Download timeout")
+
+    file_name = safe_url.rstrip("/").split("/")[-1] or "downloaded.txt"
+    repo = SourceRepository(session)
+    source = repo.create_source(
+        file_name=file_name,
+        file_type="txt",
+        content=content,
+        source_url=safe_url,
+    )
+    return {
+        "file_id": source.id,
+        "source_url": safe_url,
+        "downloaded": True,
+        "bytes_previewed": len(content),
+    }
+
+
+def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dict:
+    repo = SourceRepository(session)
+    source = repo.get_source(file_id)
+    if not source:
+        raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
+
+    extracted = source.content[:400] if mode == "summary" else source.content
+    return {
+        "file_id": source.id,
+        "mode": mode,
+        "content": extracted,
+        "chars": len(extracted),
+    }
+
+
+def list_sources(session: Session) -> dict:
+    repo = SourceRepository(session)
+    items = repo.list_sources()
+    return {
+        "items": [
+            {
+                "file_id": source.id,
+                "file_name": source.file_name,
+                "file_type": source.file_type,
+                "created_at": source.created_at.isoformat() if source.created_at else None,
+            }
+            for source in items
+        ],
+        "count": len(items),
+    }
+
+
+def get_source(session: Session, *, file_id: int) -> dict:
+    repo = SourceRepository(session)
+    source = repo.get_source(file_id)
+    if not source:
+        raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
+    return {
+        "file_id": source.id,
+        "file_name": source.file_name,
+        "file_type": source.file_type,
+        "content": source.content,
+        "created_at": source.created_at.isoformat() if source.created_at else None,
+    }
+
+
+def video_to_text(*, source: str) -> dict:
+    return {"source": source, "transcript": f"[MVP transcript placeholder] {source}"}
+
+
+def ai_assist(*, prompt: str, api_key_enabled: bool) -> dict:
+    if not api_key_enabled:
+        raise ServiceError(code="api_key_disabled", message="API key disabled; assistance unavailable")
+    return {"result": f"AI-assisted draft for: {prompt.strip()}"}
