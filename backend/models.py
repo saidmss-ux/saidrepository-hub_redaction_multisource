@@ -68,10 +68,3 @@ class AuthRefreshRequest(BaseModel):
 class AuthRevokeRequest(BaseModel):
     user_id: str = Field(..., min_length=1)
     tenant_id: str = Field(..., min_length=1)
-
-
-class FeatureFlagSetRequest(BaseModel):
-    key: str = Field(..., min_length=1)
-    enabled: bool
-    scope: str = Field(default="tenant", min_length=1)
-    scope_id: str = Field(default="")
