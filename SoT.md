@@ -108,3 +108,39 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Tests extraction minimum 3 formats
 - Test échec téléchargement HTTP
 - Pas de build sans validation endpoint
+
+## Statut d’implémentation actuel
+
+- Backend MVP FastAPI initialisé avec endpoints contractuels : `/upload`, `/download-from-url`, `/extract`, `/video-to-text`, `/ai-assist` + `/health`.
+- Contrat de réponse unifié `BaseResponse` appliqué à tous les endpoints.
+- Tests API de base ajoutés pour validation de contrat et gestion d’erreur 422.
+
+- Le flux MVP couvre maintenant upload -> stockage mémoire -> extraction avec gestion d’erreur structurée (`success=false`).
+- Endpoint `/ai-assist` gère explicitement les cas clé API désactivée via contrat JSON stable.
+
+- Plan d'exécution détaillé maintenu dans `implementation_plan.md` pour suivi des phases backend.
+
+- Backend stabilisé en architecture modulaire (routers/services/repository) avec persistance SQLite pour le MVP.
+
+- Stabilisation backend orientée intégration frontend: contrat erreur unifié et documentation API backend dédiée.
+
+- Backend prêt intégration fullstack contrôlée: observabilité structurée, request ID, et protection surcharge configurable.
+
+- Intégration frontend-backend renforcée via couche client API v1 centralisée et mapping d'erreurs contractuel.
+
+
+- Product Layer introduite (Project/Document/Batch) en alignement strict avec la roadmap Fullstack/Stabilisation, sans rupture du contrat API v1.
+
+
+## Operational Governance
+
+- Environnements séparés et explicités : `local`, `staging`, `production`.
+- Configuration pilotée par variables d’environnement validées strictement.
+- Local = SQLite ; staging/production = PostgreSQL.
+- CI/CD bloque toute intégration si tests backend/frontend échouent.
+- Déploiement staging via branche `staging`; production via `main` ou tag versionné.
+- Migration DB non destructive et traçable via Alembic (révisions additives).
+
+- Operational hardening ajouté: JWT+RBAC, rate limiting, métriques Prometheus, gouvernance Alembic sans rupture API v1.
+
+- Foundations multi-tenant/audit/worker/feature-flags ajoutées de façon additive (flags désactivés par défaut).

@@ -263,3 +263,32 @@ Générer automatiquement les types TypeScript Phaser/React
 Construire les formulaires UI automatiquement dans Builder.io
 
 Générer des tests e2e
+
+## Implémentation MVP (état courant)
+
+- `backend/models.py` : modèles Pydantic de requête/réponse.
+- `backend/main.py` : service FastAPI et endpoints contractuels.
+- `tests/test_api.py` : tests de contrat (`BaseResponse`) et validation d’entrée.
+
+- Stockage temporaire en mémoire (`SOURCES`) pour relier upload/download à extraction.
+- Téléchargement URL MVP avec prévisualisation de contenu texte (bornée) et erreur contractuelle.
+
+- Endpoints additionnels MVP de support UI: `GET /sources`, `GET /source/{file_id}`.
+
+- Backend implémenté en modules: `api/v1`, `services`, `repositories`, `db` (SQLAlchemy SQLite).
+
+- Versionnement API actif via préfixe `/api/v1`.
+
+- Gestion des erreurs centralisée dans `main.py` (handlers globaux) pour homogénéité du contrat API.
+
+- Middlewares backend: correlation ID (`x-request-id`) + limite de concurrence (retour `over_capacity`).
+
+- Couche frontend d'intégration: `frontend/src/api`, `frontend/src/services`, `frontend/src/state` (séparation API/état/UI).
+
+
+- Product Domain layer ajoutée: `projects`, `documents`, `batch_runs`, `batch_items` avec orchestration service dédiée.
+
+- Opérations: CI/CD avec jobs qualité (tests + build Docker), staging branch deploy, production tag/main deploy.
+
+- Sécurité plateforme: middleware rate limit + headers sécurité + dépendances auth JWT/RBAC sur endpoints Product Layer.
+- Observabilité: endpoint `/metrics` Prometheus et métriques de latence/erreurs/extraction/batch.
