@@ -11,17 +11,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from backend.api.v1.router import router as v1_router
 from backend.api.versioning import version_prefix
 from backend.core.config import settings
-from backend.db.models import (
-    AuditEvent,
-    BackgroundJob,
-    BatchItem,
-    BatchRun,
-    Document,
-    FeatureFlag,
-    Project,
-    RefreshToken,
-    Source,
-)  # noqa: F401
+from backend.db.models import BatchItem, BatchRun, Document, Project, Source  # noqa: F401
 from backend.db.migrations import bootstrap_schema
 from backend.db.session import engine
 from backend.services.errors import ServiceError

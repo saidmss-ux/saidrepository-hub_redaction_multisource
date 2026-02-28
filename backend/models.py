@@ -58,13 +58,3 @@ class ProjectBatchExtractRequest(BaseModel):
 class AuthTokenRequest(BaseModel):
     user_id: str = Field(..., min_length=1)
     role: str = Field(default="user", min_length=1)
-    tenant_id: str | None = Field(default=None, min_length=1)
-
-
-class AuthRefreshRequest(BaseModel):
-    refresh_token: str = Field(..., min_length=8)
-
-
-class AuthRevokeRequest(BaseModel):
-    user_id: str = Field(..., min_length=1)
-    tenant_id: str = Field(..., min_length=1)

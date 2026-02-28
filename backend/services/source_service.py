@@ -29,7 +29,7 @@ def _validate_upload_type(file_type: str) -> str:
     return normalized
 
 
-def upload_source(session: Session, *, file_name: str, file_type: str, content: str, tenant_id: str | None = None) -> dict:
+def upload_source(session: Session, *, file_name: str, file_type: str, content: str) -> dict:
     content_len = len(content)
     if content_len > settings.max_upload_chars:
         raise ServiceError(
@@ -39,12 +39,7 @@ def upload_source(session: Session, *, file_name: str, file_type: str, content: 
         )
 
     normalized_type = _validate_upload_type(file_type)
-    source = _repo(session).create_source(
-        file_name=file_name,
-        file_type=normalized_type,
-        content=content,
-        tenant_id=tenant_id or settings.default_tenant_id,
-    )
+    source = _repo(session).create_source(file_name=file_name, file_type=normalized_type, content=content)
     log_event("upload_saved", file_id=source.id, file_type=source.file_type, upload_chars=content_len)
     return {
         "file_id": source.id,
@@ -54,7 +49,7 @@ def upload_source(session: Session, *, file_name: str, file_type: str, content: 
     }
 
 
-def download_from_url(session: Session, *, url: str, tenant_id: str | None = None) -> dict:
+def download_from_url(session: Session, *, url: str) -> dict:
     safe_url = validate_public_http_url(url)
     try:
         with urlopen(safe_url, timeout=settings.url_download_timeout_s) as response:  # nosec B310
@@ -73,7 +68,6 @@ def download_from_url(session: Session, *, url: str, tenant_id: str | None = Non
         file_type="txt",
         content=content,
         source_url=safe_url,
-        tenant_id=tenant_id or settings.default_tenant_id,
     )
     log_event("download_saved", file_id=source.id, source_url=safe_url, bytes_previewed=len(content))
     return {
@@ -84,9 +78,9 @@ def download_from_url(session: Session, *, url: str, tenant_id: str | None = Non
     }
 
 
-def extract_content(session: Session, *, file_id: int, mode: ExtractMode, tenant_id: str | None = None) -> dict:
+def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dict:
     start_time = monotonic()
-    source = _repo(session).get_source(file_id, tenant_id=tenant_id or settings.default_tenant_id)
+    source = _repo(session).get_source(file_id)
     if not source:
         raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
 
@@ -106,8 +100,8 @@ def extract_content(session: Session, *, file_id: int, mode: ExtractMode, tenant
     }
 
 
-def list_sources(session: Session, tenant_id: str | None = None) -> dict:
-    items = _repo(session).list_sources(tenant_id=tenant_id or settings.default_tenant_id)
+def list_sources(session: Session) -> dict:
+    items = _repo(session).list_sources()
     return {
         "items": [
             {
@@ -122,8 +116,8 @@ def list_sources(session: Session, tenant_id: str | None = None) -> dict:
     }
 
 
-def get_source(session: Session, *, file_id: int, tenant_id: str | None = None) -> dict:
-    source = _repo(session).get_source(file_id, tenant_id=tenant_id or settings.default_tenant_id)
+def get_source(session: Session, *, file_id: int) -> dict:
+    source = _repo(session).get_source(file_id)
     if not source:
         raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
     return {
