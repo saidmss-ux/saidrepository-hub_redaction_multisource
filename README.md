@@ -1,3 +1,5 @@
+![CI](https://github.com/your-org/saidrepository-hub_redaction_multisource/actions/workflows/ci-cd.yml/badge.svg)
+
 # saidrepository-hub_redaction_multisource# DocuHub — Documentation & Extraction Hub
 
 DocuHub est une application web et desktop (via Tauri) qui centralise :
