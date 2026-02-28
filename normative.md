@@ -68,5 +68,3 @@ Toute modification technique doit être reflétée dans :
 - Toute évolution auth/session (refresh/revoke/rotation) doit rester additive et compatible avec `/api/v1`.
 
 - Le rate limiting distribué doit conserver un fallback dégradé contrôlé et ne jamais casser le contrat d'erreur `rate_limited`.
-
-- Toute activation worker async doit être protégée par feature flag gouverné et conserver une réponse contractuelle (`BaseResponse`).

@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.db.migrations import bootstrap_schema
 from backend.services.errors import ServiceError
-from backend.services.feature_flag_service import set_feature_flag
 from backend.services.product_service import (
     add_document_to_project,
     create_project,
@@ -65,33 +64,3 @@ def test_project_tenant_isolation(db_session):
     with pytest.raises(ServiceError) as err:
         list_project_documents(db_session, project_id=project["project_id"], tenant_id="tenant-b")
     assert err.value.code == "project_not_found"
-
-
-def test_project_batch_extract_queued_when_async_flag_on(db_session, monkeypatch):
-    monkeypatch.setattr("backend.services.product_service.settings.worker_enabled", True)
-    monkeypatch.setattr("backend.services.product_service.settings.batch_async_enabled", True)
-
-    set_feature_flag(
-        db_session,
-        key="batch.async.enabled",
-        enabled=True,
-        scope="tenant",
-        scope_id="default",
-        actor_id="admin",
-        actor_tenant_id="default",
-    )
-
-    project = create_project(db_session, name="Q", description="")
-    source = upload_source(db_session, file_name="a.txt", file_type="txt", content="hello")
-    add_document_to_project(
-        db_session,
-        project_id=project["project_id"],
-        source_id=source["file_id"],
-        title="Doc 1",
-    )
-
-    batch = run_project_batch_extract(db_session, project_id=project["project_id"], mode="summary")
-    assert batch["status"] == "queued"
-    assert batch["count"] == 0
-    assert batch["items"] == []
-    assert batch["job_id"] >= 1

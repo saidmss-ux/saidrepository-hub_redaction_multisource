@@ -2,11 +2,9 @@ from sqlalchemy.orm import Session
 
 from backend.core.config import settings
 from backend.models import ExtractMode
-from backend.repositories.background_job_repository import BackgroundJobRepository
 from backend.repositories.product_repository import ProductRepository
 from backend.services.audit_service import record_audit_event
 from backend.services.errors import ServiceError
-from backend.services.feature_flag_service import get_effective_flag
 from backend.services.logging_utils import log_event
 from backend.services.metrics_service import observe_batch_size
 from backend.services.task_runner import get_task_runner
@@ -136,47 +134,6 @@ def run_project_batch_extract(
         raise ServiceError(code="project_not_found", message="Project not found", details={"project_id": project_id})
 
     docs = repo.list_documents_by_project(project_id, tenant_id=resolved_tenant)
-
-    use_async_batch = (
-        settings.worker_enabled
-        and settings.batch_async_enabled
-        and get_effective_flag(session, key="batch.async.enabled", tenant_id=resolved_tenant, default=False)
-    )
-
-    if use_async_batch:
-        queued_batch = repo.create_batch_run(project_id=project_id, mode=mode, status="queued", tenant_id=resolved_tenant)
-        job = BackgroundJobRepository(session).create_job(
-            tenant_id=resolved_tenant,
-            job_type="batch_extract",
-            payload={"project_id": project_id, "batch_id": queued_batch.id, "mode": mode, "count": len(docs)},
-        )
-        log_event(
-            "project_batch_queued",
-            project_id=project_id,
-            batch_id=queued_batch.id,
-            job_id=job.id,
-            tenant_id=resolved_tenant,
-        )
-        record_audit_event(
-            session,
-            tenant_id=resolved_tenant,
-            actor_id=actor_id,
-            action="batch.extract.queued",
-            target_type="batch",
-            target_id=str(queued_batch.id),
-            outcome="success",
-            metadata={"job_id": job.id, "mode": mode, "count": len(docs)},
-        )
-        return {
-            "batch_id": queued_batch.id,
-            "project_id": project_id,
-            "mode": mode,
-            "status": "queued",
-            "job_id": job.id,
-            "items": [],
-            "count": 0,
-        }
-
     batch = repo.create_batch_run(project_id=project_id, mode=mode, status="completed", tenant_id=resolved_tenant)
 
     def _execute_batch() -> list[dict]:

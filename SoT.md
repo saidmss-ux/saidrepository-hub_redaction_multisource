@@ -148,5 +148,3 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Session security avancée démarrée en mode additif: endpoints `/auth/refresh` et `/auth/revoke` + rotation contrôlée par configuration, sans rupture du contrat `BaseResponse`.
 
 - Rate limiting distribué avancé: backend Redis opérationnel avec fallback mémoire sans rupture API v1.
-
-- Feature flags opérationnels (tenant/global) pour rollout progressif; batch async activable sans rupture contrat API v1.

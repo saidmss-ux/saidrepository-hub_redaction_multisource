@@ -83,9 +83,3 @@
 - [x] Distributed rate limit backend implémenté avec mode `redis` (counter + TTL) et fallback mémoire contrôlé.
 - [x] Tests unitaires ajoutés pour voie redis (succès, blocage, fallback).
 - [x] Contrat d’erreur `rate_limited` conservé via `ServiceError` + handler global.
-
-
-## Phase D/E roadmap_deployment
-- [x] Service feature flags implémenté (scope `tenant|global`) + endpoint admin additif `/admin/feature-flags`.
-- [x] Batch orchestration branchée sur flag `batch.async.enabled` + knobs worker existants.
-- [x] En mode activé, extraction batch retourne état `queued` contractuel sans casser `BaseResponse`.

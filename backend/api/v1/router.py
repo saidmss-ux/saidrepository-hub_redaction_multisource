@@ -6,7 +6,6 @@ from backend.db.session import get_db_session
 from backend.core.config import settings
 from backend.models import (
     AIAssistRequest,
-    FeatureFlagSetRequest,
     AuthRefreshRequest,
     AuthRevokeRequest,
     AuthTokenRequest,
@@ -19,7 +18,7 @@ from backend.models import (
     UploadRequest,
     VideoToTextRequest,
 )
-from backend.services import feature_flag_service, product_service, source_service
+from backend.services import product_service, source_service
 from backend.services.auth_service import AuthContext
 from backend.services.response import ok
 from backend.services.session_service import issue_token_pair, refresh_token_pair, revoke_user_sessions
@@ -178,25 +177,5 @@ async def ai_assist(payload: AIAssistRequest) -> BaseResponse:
         source_service.ai_assist(
             prompt=payload.prompt,
             api_key_enabled=payload.api_key_enabled,
-        )
-    )
-
-
-@router.post("/admin/feature-flags", response_model=BaseResponse)
-async def set_feature_flag(
-    payload: FeatureFlagSetRequest,
-    db: Session = Depends(get_db_session),
-    auth: AuthContext = Depends(require_role("admin")),
-    tenant_id: str = Depends(get_tenant_id),
-) -> BaseResponse:
-    return ok(
-        feature_flag_service.set_feature_flag(
-            db,
-            key=payload.key,
-            enabled=payload.enabled,
-            scope=payload.scope,
-            scope_id=payload.scope_id,
-            actor_id=auth.user_id,
-            actor_tenant_id=tenant_id,
         )
     )
