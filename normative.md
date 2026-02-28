@@ -63,3 +63,8 @@ Toute modification technique doit être reflétée dans :
 
 - Toute nouvelle route métier sensible doit appliquer auth JWT + RBAC sans modifier le contrat BaseResponse existant.
 - Les évolutions de schéma passent par Alembic avec contrôle de drift en CI.
+
+
+- Toute évolution auth/session (refresh/revoke/rotation) doit rester additive et compatible avec `/api/v1`.
+
+- Le rate limiting distribué doit conserver un fallback dégradé contrôlé et ne jamais casser le contrat d'erreur `rate_limited`.

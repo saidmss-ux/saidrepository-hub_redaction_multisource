@@ -57,3 +57,10 @@ def test_project_not_found(db_session):
     with pytest.raises(ServiceError) as err:
         list_project_documents(db_session, project_id=999)
     assert err.value.code == "project_not_found"
+
+
+def test_project_tenant_isolation(db_session):
+    project = create_project(db_session, name="A", description="", tenant_id="tenant-a")
+    with pytest.raises(ServiceError) as err:
+        list_project_documents(db_session, project_id=project["project_id"], tenant_id="tenant-b")
+    assert err.value.code == "project_not_found"

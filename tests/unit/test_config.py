@@ -53,3 +53,22 @@ def test_settings_production_requires_custom_jwt_secret() -> None:
                 "JWT_SECRET": "change-me-local-secret",
             }
         )
+
+
+def test_settings_redis_backend_requires_url() -> None:
+    with pytest.raises(ValueError):
+        Settings.from_env({
+            "APP_ENV": "local",
+            "DATABASE_URL": "sqlite:///./test.db",
+            "RATE_LIMIT_BACKEND": "redis",
+        })
+
+
+def test_settings_redis_backend_valid() -> None:
+    config = Settings.from_env({
+        "APP_ENV": "local",
+        "DATABASE_URL": "sqlite:///./test.db",
+        "RATE_LIMIT_BACKEND": "redis",
+        "RATE_LIMIT_REDIS_URL": "redis://localhost:6379/0",
+    })
+    assert config.rate_limit_backend == "redis"

@@ -46,6 +46,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column("tenant_id", sa.String(length=64), nullable=False),
         sa.Column("user_id", sa.String(length=128), nullable=False),
+        sa.Column("role", sa.String(length=32), nullable=False, server_default="user"),
         sa.Column("token_hash", sa.String(length=128), nullable=False),
         sa.Column("parent_token_hash", sa.String(length=128), nullable=True),
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),

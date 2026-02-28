@@ -20,9 +20,27 @@ class Settings(BaseModel):
     jwt_secret: str = Field(default="change-me-local-secret")
     jwt_ttl_seconds: int = Field(default=3600, ge=60)
     auth_roles: tuple[str, ...] = ("admin", "user")
+    default_tenant_id: str = Field(default="default")
+    tenancy_enforced: bool = Field(default=False)
 
     rate_limit_requests: int = Field(default=120, ge=1)
     rate_limit_window_s: int = Field(default=60, ge=1)
+    rate_limit_backend: str = Field(default="memory")
+    rate_limit_redis_url: str = Field(default="")
+
+    audit_enabled: bool = Field(default=False)
+    audit_strict_mode: bool = Field(default=False)
+
+    worker_enabled: bool = Field(default=False)
+    queue_backend_url: str = Field(default="")
+    batch_async_enabled: bool = Field(default=False)
+
+    feature_flags_backend: str = Field(default="memory")
+    feature_flags_cache_ttl: int = Field(default=30, ge=1)
+
+    refresh_token_ttl_s: int = Field(default=604800, ge=300)
+    refresh_rotation_enabled: bool = Field(default=False)
+    refresh_reuse_detection: bool = Field(default=False)
 
     cors_allowed_origins: tuple[str, ...] = ("http://localhost:3000",)
     hsts_enabled: bool = Field(default=False)
@@ -52,6 +70,14 @@ class Settings(BaseModel):
             raise ValueError("api_prefix must start with /api/")
         return value
 
+    @field_validator("rate_limit_backend")
+    @classmethod
+    def _validate_rate_limit_backend(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in {"memory", "redis"}:
+            raise ValueError("rate_limit_backend must be one of: memory, redis")
+        return normalized
+
     @model_validator(mode="after")
     def _validate_environment_db_rules(self) -> "Settings":
         is_sqlite = self.database_url.startswith("sqlite")
@@ -68,6 +94,9 @@ class Settings(BaseModel):
 
         if self.app_env in {"staging", "production"} and self.jwt_secret == "change-me-local-secret":
             raise ValueError("jwt_secret must be customized in staging/production")
+
+        if self.rate_limit_backend == "redis" and not self.rate_limit_redis_url:
+            raise ValueError("rate_limit_redis_url must be set when rate_limit_backend=redis")
 
         return self
 
@@ -86,8 +115,22 @@ class Settings(BaseModel):
             "concurrency_limit": int(source.get("CONCURRENCY_LIMIT", "20")),
             "jwt_secret": source.get("JWT_SECRET", "change-me-local-secret"),
             "jwt_ttl_seconds": int(source.get("JWT_TTL_SECONDS", "3600")),
+            "default_tenant_id": source.get("DEFAULT_TENANT_ID", "default"),
+            "tenancy_enforced": source.get("TENANCY_ENFORCED", "false").lower() == "true",
             "rate_limit_requests": int(source.get("RATE_LIMIT_REQUESTS", "120")),
             "rate_limit_window_s": int(source.get("RATE_LIMIT_WINDOW_S", "60")),
+            "rate_limit_backend": source.get("RATE_LIMIT_BACKEND", "memory"),
+            "rate_limit_redis_url": source.get("RATE_LIMIT_REDIS_URL", ""),
+            "audit_enabled": source.get("AUDIT_ENABLED", "false").lower() == "true",
+            "audit_strict_mode": source.get("AUDIT_STRICT_MODE", "false").lower() == "true",
+            "worker_enabled": source.get("WORKER_ENABLED", "false").lower() == "true",
+            "queue_backend_url": source.get("QUEUE_BACKEND_URL", ""),
+            "batch_async_enabled": source.get("BATCH_ASYNC_ENABLED", "false").lower() == "true",
+            "feature_flags_backend": source.get("FEATURE_FLAGS_BACKEND", "memory"),
+            "feature_flags_cache_ttl": int(source.get("FEATURE_FLAGS_CACHE_TTL", "30")),
+            "refresh_token_ttl_s": int(source.get("REFRESH_TOKEN_TTL_S", "604800")),
+            "refresh_rotation_enabled": source.get("REFRESH_ROTATION_ENABLED", "false").lower() == "true",
+            "refresh_reuse_detection": source.get("REFRESH_REUSE_DETECTION", "false").lower() == "true",
             "cors_allowed_origins": tuple(filter(None, source.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(","))),
             "hsts_enabled": source.get("HSTS_ENABLED", "false").lower() == "true",
         }

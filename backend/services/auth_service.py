@@ -18,6 +18,10 @@ class AuthContext(dict):
     def role(self) -> str:
         return self.get("role", "user")
 
+    @property
+    def tenant_id(self) -> str:
+        return self.get("tenant_id", settings.default_tenant_id)
+
 
 def _b64url_encode(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b"=").decode("utf-8")
@@ -28,10 +32,22 @@ def _b64url_decode(value: str) -> bytes:
     return base64.urlsafe_b64decode((value + padding).encode("utf-8"))
 
 
-def create_access_token(*, sub: str, role: str = "user", ttl_seconds: int | None = None) -> str:
+def create_access_token(
+    *,
+    sub: str,
+    role: str = "user",
+    tenant_id: str | None = None,
+    ttl_seconds: int | None = None,
+) -> str:
     ttl = ttl_seconds or settings.jwt_ttl_seconds
     now = int(time.time())
-    payload = {"sub": sub, "role": role, "iat": now, "exp": now + ttl}
+    payload = {
+        "sub": sub,
+        "role": role,
+        "tenant_id": tenant_id or settings.default_tenant_id,
+        "iat": now,
+        "exp": now + ttl,
+    }
     header = {"alg": "HS256", "typ": "JWT"}
 
     encoded_header = _b64url_encode(json.dumps(header, separators=(",", ":")).encode("utf-8"))
@@ -62,5 +78,11 @@ def decode_access_token(token: str) -> AuthContext:
     role = payload.get("role", "user")
     if role not in settings.auth_roles:
         raise ServiceError(code="auth_invalid_role", message="Invalid authentication role")
+
+    if settings.tenancy_enforced and not payload.get("tenant_id"):
+        raise ServiceError(code="tenant_missing", message="Missing tenant context")
+
+    if "tenant_id" not in payload:
+        payload["tenant_id"] = settings.default_tenant_id
 
     return AuthContext(payload)
