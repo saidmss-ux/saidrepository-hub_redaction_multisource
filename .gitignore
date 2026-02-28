@@ -1,4 +1,23 @@
+# Database files
+docuhub.db
+*.sqlite
+*.sqlite3
+
+# Python
 .venv/
 .offline_packages/
 __pycache__/
 .pytest_cache/
+*.pyc
+*.pyo
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
