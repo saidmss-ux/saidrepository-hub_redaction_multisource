@@ -49,3 +49,5 @@ Toute modification technique doit être reflétée dans :
 - Le fichier `implementation_plan.md` doit être mis à jour à chaque avancée majeure d'implémentation.
 
 - Les routers ne doivent contenir aucune logique SQL directe; accès DB uniquement via repository + services.
+
+- Toute erreur métier doit remonter via `ServiceError` puis être sérialisée en `BaseResponse` par handler global.

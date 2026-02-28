@@ -1,3 +1,4 @@
+from time import monotonic
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
@@ -10,6 +11,17 @@ from backend.services.errors import ServiceError
 from backend.services.security import validate_public_http_url
 
 
+def _validate_upload_type(file_type: str) -> str:
+    normalized = file_type.strip().lower()
+    if normalized not in settings.allowed_file_types:
+        raise ServiceError(
+            code="unsupported_file_type",
+            message="Provided file type is not supported",
+            details={"allowed_file_types": list(settings.allowed_file_types)},
+        )
+    return normalized
+
+
 def upload_source(session: Session, *, file_name: str, file_type: str, content: str) -> dict:
     if len(content) > settings.max_upload_chars:
         raise ServiceError(
@@ -18,10 +30,11 @@ def upload_source(session: Session, *, file_name: str, file_type: str, content: 
             details={"max_upload_chars": settings.max_upload_chars},
         )
 
+    normalized_type = _validate_upload_type(file_type)
     repo = SourceRepository(session)
     source = repo.create_source(
         file_name=file_name,
-        file_type=file_type.lower(),
+        file_type=normalized_type,
         content=content,
     )
     return {
@@ -39,9 +52,17 @@ def download_from_url(session: Session, *, url: str) -> dict:
             raw = response.read(settings.max_download_chars)
             content = raw.decode("utf-8", errors="replace")
     except HTTPError as exc:
-        raise ServiceError(code="network_http_error", message="HTTP error while downloading", details={"status": exc.code})
+        raise ServiceError(
+            code="network_http_error",
+            message="HTTP error while downloading",
+            details={"status": exc.code},
+        )
     except URLError as exc:
-        raise ServiceError(code="network_url_error", message="Network error while downloading", details={"reason": str(exc.reason)})
+        raise ServiceError(
+            code="network_url_error",
+            message="Network error while downloading",
+            details={"reason": str(exc.reason)},
+        )
     except TimeoutError:
         raise ServiceError(code="network_timeout", message="Download timeout")
 
@@ -62,10 +83,14 @@ def download_from_url(session: Session, *, url: str) -> dict:
 
 
 def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dict:
+    start_time = monotonic()
     repo = SourceRepository(session)
     source = repo.get_source(file_id)
     if not source:
         raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
+
+    if monotonic() - start_time > settings.extract_timeout_s:
+        raise ServiceError(code="extract_timeout", message="Extraction timeout")
 
     extracted = source.content[:400] if mode == "summary" else source.content
     return {

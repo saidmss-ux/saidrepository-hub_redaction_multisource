@@ -121,3 +121,5 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Plan d'exécution détaillé maintenu dans `implementation_plan.md` pour suivi des phases backend.
 
 - Backend stabilisé en architecture modulaire (routers/services/repository) avec persistance SQLite pour le MVP.
+
+- Stabilisation backend orientée intégration frontend: contrat erreur unifié et documentation API backend dédiée.

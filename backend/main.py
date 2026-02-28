@@ -6,15 +6,22 @@ from backend.api.v1.router import router as v1_router
 from backend.core.config import settings
 from backend.db.models import Source  # noqa: F401 (metadata registration)
 from backend.db.session import Base, engine
+from backend.services.errors import ServiceError
 from backend.services.response import fail
 
-app = FastAPI(title="DocuHub API", version="0.3.0")
+app = FastAPI(title="DocuHub API", version="0.3.1")
 app.include_router(v1_router, prefix=settings.api_prefix)
 
 
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
+
+
+@app.exception_handler(ServiceError)
+async def service_exception_handler(request: Request, exc: ServiceError) -> JSONResponse:
+    payload = fail(exc.code, exc.message, exc.details).model_dump()
+    return JSONResponse(status_code=400, content=payload)
 
 
 @app.exception_handler(RequestValidationError)

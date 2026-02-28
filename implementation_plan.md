@@ -36,3 +36,7 @@
 - [x] Migration du stockage mémoire vers SQLite SQLAlchemy + repository pattern.
 
 - [x] Préfixe API `/api/v1` appliqué sur les endpoints contractuels.
+
+- [x] Centralisation des erreurs métier via handler global `ServiceError` et contrat BaseResponse unique.
+
+- [x] Durcissement validation upload (type + taille) et documentation backend prête frontend (`backend/README.md`).

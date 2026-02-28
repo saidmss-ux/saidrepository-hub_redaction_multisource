@@ -278,3 +278,5 @@ Générer des tests e2e
 - Backend implémenté en modules: `api/v1`, `services`, `repositories`, `db` (SQLAlchemy SQLite).
 
 - Versionnement API actif via préfixe `/api/v1`.
+
+- Gestion des erreurs centralisée dans `main.py` (handlers globaux) pour homogénéité du contrat API.

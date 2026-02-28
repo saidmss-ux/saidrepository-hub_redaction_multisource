@@ -69,3 +69,16 @@ def test_download_network_error_is_normalized(db_session, monkeypatch):
     with pytest.raises(ServiceError) as err:
         download_from_url(db_session, url="https://example.com/file.txt")
     assert err.value.code == "network_url_error"
+
+
+def test_upload_too_large(db_session, monkeypatch):
+    monkeypatch.setattr("backend.services.source_service.settings.max_upload_chars", 3)
+    with pytest.raises(ServiceError) as err:
+        upload_source(db_session, file_name="doc.txt", file_type="txt", content="hello")
+    assert err.value.code == "upload_too_large"
+
+
+def test_upload_unsupported_type(db_session):
+    with pytest.raises(ServiceError) as err:
+        upload_source(db_session, file_name="doc.bin", file_type="application/octet-stream", content="abc")
+    assert err.value.code == "unsupported_file_type"
