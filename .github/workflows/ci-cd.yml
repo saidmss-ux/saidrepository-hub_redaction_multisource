@@ -27,9 +27,10 @@ jobs:
           APP_ENV: local
           DATABASE_URL: sqlite:///./ci.db
           DEBUG: true
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          alembic upgrade head
-          alembic check
+          python -m alembic upgrade head
+          python -m alembic check
 
       - name: Run backend tests
         run: pytest -q

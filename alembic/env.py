@@ -1,4 +1,11 @@
+import sys
+import os
 from logging.config import fileConfig
+
+# Ensure repository root is on sys.path so "backend" imports work when alembic is invoked
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
