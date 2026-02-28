@@ -41,3 +41,15 @@ def test_settings_production_requires_debug_false() -> None:
                 "DEBUG": "true",
             }
         )
+
+
+def test_settings_production_requires_custom_jwt_secret() -> None:
+    with pytest.raises(ValueError):
+        Settings.from_env(
+            {
+                "APP_ENV": "production",
+                "DATABASE_URL": "postgresql://x:y@z:5432/db",
+                "DEBUG": "false",
+                "JWT_SECRET": "change-me-local-secret",
+            }
+        )

@@ -16,6 +16,17 @@ class Settings(BaseModel):
     max_upload_chars: int = Field(default=200000, ge=1)
     concurrency_limit: int = Field(default=20, ge=1)
 
+
+    jwt_secret: str = Field(default="change-me-local-secret")
+    jwt_ttl_seconds: int = Field(default=3600, ge=60)
+    auth_roles: tuple[str, ...] = ("admin", "user")
+
+    rate_limit_requests: int = Field(default=120, ge=1)
+    rate_limit_window_s: int = Field(default=60, ge=1)
+
+    cors_allowed_origins: tuple[str, ...] = ("http://localhost:3000",)
+    hsts_enabled: bool = Field(default=False)
+
     allowed_file_types: tuple[str, ...] = (
         "pdf",
         "docx",
@@ -55,6 +66,9 @@ class Settings(BaseModel):
         if self.app_env in {"staging", "production"} and self.debug:
             raise ValueError("debug must be false in staging/production")
 
+        if self.app_env in {"staging", "production"} and self.jwt_secret == "change-me-local-secret":
+            raise ValueError("jwt_secret must be customized in staging/production")
+
         return self
 
     @classmethod
@@ -70,6 +84,12 @@ class Settings(BaseModel):
             "max_download_chars": int(source.get("MAX_DOWNLOAD_CHARS", "20000")),
             "max_upload_chars": int(source.get("MAX_UPLOAD_CHARS", "200000")),
             "concurrency_limit": int(source.get("CONCURRENCY_LIMIT", "20")),
+            "jwt_secret": source.get("JWT_SECRET", "change-me-local-secret"),
+            "jwt_ttl_seconds": int(source.get("JWT_TTL_SECONDS", "3600")),
+            "rate_limit_requests": int(source.get("RATE_LIMIT_REQUESTS", "120")),
+            "rate_limit_window_s": int(source.get("RATE_LIMIT_WINDOW_S", "60")),
+            "cors_allowed_origins": tuple(filter(None, source.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(","))),
+            "hsts_enabled": source.get("HSTS_ENABLED", "false").lower() == "true",
         }
         try:
             return cls.model_validate(payload)

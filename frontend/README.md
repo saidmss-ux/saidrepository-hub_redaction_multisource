@@ -39,3 +39,12 @@ const { loadingState, finalState } = await runRequest(() =>
 
 ## Tests
 - `node --test frontend/tests/apiClient.test.mjs`
+
+
+## Auth Integration
+- `ApiClient` injecte automatiquement le header `Authorization: Bearer <token>` via `getAccessToken`.
+- En cas de `401`, callback `onUnauthorized` déclenché (stub prêt pour refresh token).
+- Le parsing `BaseResponse` reste inchangé.
+
+## Environment Base Resolution
+- Résolution automatique base URL via `resolveApiBaseByEnv` (`local`, `staging`, `production`).

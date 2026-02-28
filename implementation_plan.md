@@ -56,3 +56,12 @@
 - Service orchestration added for project batch extraction without changing existing endpoint behaviors.
 
 - [x] Gouvernance opérationnelle ajoutée: stratégie environnements + CI/CD + rollback documenté.
+
+- [x] Security hardening: JWT/RBAC + rate limiting + headers sécurité en middleware.
+- [x] Observability level-up: endpoint `/metrics` + métriques contractuelles Prometheus.
+- [x] Migration governance: base Alembic + contrôle de drift intégré en CI.
+
+## Evolution rationale (security/observability)
+- Added stateless auth and RBAC only on additive product endpoints to preserve existing v1 behavior compatibility.
+- Added operational safeguards (rate limits, security headers) as middleware-level controls configurable per environment.
+- Added Prometheus metrics and Alembic governance to improve production observability and schema safety.

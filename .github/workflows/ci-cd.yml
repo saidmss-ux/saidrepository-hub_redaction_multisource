@@ -22,6 +22,15 @@ jobs:
       - name: Install backend dependencies
         run: pip install -r requirements.txt
 
+      - name: Run migration upgrade check
+        env:
+          APP_ENV: local
+          DATABASE_URL: sqlite:///./ci.db
+          DEBUG: true
+        run: |
+          alembic upgrade head
+          alembic check
+
       - name: Run backend tests
         run: pytest -q
 

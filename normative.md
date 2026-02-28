@@ -60,3 +60,6 @@ Toute modification technique doit être reflétée dans :
 - Toute évolution de modèle doit être additive et traçable (migration contrôlée) pour éviter rupture de compatibilité.
 
 - Les paramètres runtime doivent être environment-driven et validés; aucune valeur critique hardcodée hors fallback local.
+
+- Toute nouvelle route métier sensible doit appliquer auth JWT + RBAC sans modifier le contrat BaseResponse existant.
+- Les évolutions de schéma passent par Alembic avec contrôle de drift en CI.

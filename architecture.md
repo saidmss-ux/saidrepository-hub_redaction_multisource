@@ -289,3 +289,6 @@ Générer des tests e2e
 - Product Domain layer ajoutée: `projects`, `documents`, `batch_runs`, `batch_items` avec orchestration service dédiée.
 
 - Opérations: CI/CD avec jobs qualité (tests + build Docker), staging branch deploy, production tag/main deploy.
+
+- Sécurité plateforme: middleware rate limit + headers sécurité + dépendances auth JWT/RBAC sur endpoints Product Layer.
+- Observabilité: endpoint `/metrics` Prometheus et métriques de latence/erreurs/extraction/batch.

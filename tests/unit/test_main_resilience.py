@@ -5,6 +5,7 @@ from starlette.requests import Request
 from backend.core.config import settings
 from backend.main import (
     _concurrency_semaphore,
+    metrics,
     request_context_middleware,
     service_exception_handler,
     unhandled_exception_handler,
@@ -62,3 +63,9 @@ def test_over_capacity_returns_503() -> None:
     response = asyncio.run(_execute())
     assert response.status_code == 503
     assert b'"over_capacity"' in response.body
+
+
+def test_metrics_endpoint_returns_text() -> None:
+    response = asyncio.run(metrics())
+    assert response.status_code == 200
+    assert b"docuhub_request_total" in response.body

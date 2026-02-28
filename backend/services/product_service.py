@@ -4,6 +4,8 @@ from backend.models import ExtractMode
 from backend.repositories.product_repository import ProductRepository
 from backend.services.errors import ServiceError
 from backend.services.logging_utils import log_event
+from backend.services.metrics_service import observe_batch_size
+from backend.services.task_runner import get_task_runner
 
 
 def _repo(session: Session) -> ProductRepository:
@@ -87,20 +89,25 @@ def run_project_batch_extract(session: Session, *, project_id: int, mode: Extrac
     docs = repo.list_documents_by_project(project_id)
     batch = repo.create_batch_run(project_id=project_id, mode=mode, status="completed")
 
-    results: list[dict] = []
-    for doc in docs:
-        src = repo.get_source(doc.source_id)
-        content = src.content if src else ""
-        extracted = content[:400] if mode == "summary" else content
-        repo.create_batch_item(batch_id=batch.id, document_id=doc.id, extracted_chars=len(extracted))
-        results.append(
-            {
-                "document_id": doc.id,
-                "source_id": doc.source_id,
-                "chars": len(extracted),
-            }
-        )
+    def _execute_batch() -> list[dict]:
+        local_results: list[dict] = []
+        for doc in docs:
+            src = repo.get_source(doc.source_id)
+            content = src.content if src else ""
+            extracted = content[:400] if mode == "summary" else content
+            repo.create_batch_item(batch_id=batch.id, document_id=doc.id, extracted_chars=len(extracted))
+            local_results.append(
+                {
+                    "document_id": doc.id,
+                    "source_id": doc.source_id,
+                    "chars": len(extracted),
+                }
+            )
+        return local_results
 
+    results = get_task_runner().run(_execute_batch)
+
+    observe_batch_size(len(results))
     log_event("project_batch_completed", project_id=project_id, batch_id=batch.id, item_count=len(results), mode=mode)
     return {
         "batch_id": batch.id,

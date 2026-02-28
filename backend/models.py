@@ -53,3 +53,8 @@ class ProjectDocumentCreateRequest(BaseModel):
 
 class ProjectBatchExtractRequest(BaseModel):
     mode: ExtractMode = "text"
+
+
+class AuthTokenRequest(BaseModel):
+    user_id: str = Field(..., min_length=1)
+    role: str = Field(default="user", min_length=1)

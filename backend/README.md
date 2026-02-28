@@ -111,3 +111,24 @@ Environment files:
 - Staging deploy is branch-driven (`staging`).
 - Production deploy is controlled by `main` or version tags (`v*`).
 - Rollback strategy: redeploy previous stable image tag and keep DB migration trail in `schema_migrations`.
+
+
+## Security Model
+- Authentification JWT stateless (Bearer token) avec rôles (`admin`, `user`).
+- Endpoints Product Layer protégés par RBAC.
+- Rate limiting configurable par environnement (`RATE_LIMIT_REQUESTS`, `RATE_LIMIT_WINDOW_S`).
+- Headers de sécurité injectés en middleware (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, HSTS optionnel).
+
+## Metrics Contract
+- Endpoint Prometheus: `GET /metrics`.
+- Métriques exposées:
+  - `docuhub_request_total`
+  - `docuhub_request_duration_ms_bucket`
+  - `docuhub_error_code_total`
+  - `docuhub_extract_duration_ms_sum/count`
+  - `docuhub_batch_size_sum/count`
+
+## Migration Governance (Alembic)
+- Migrations versionnées via `alembic/versions`.
+- CI exécute `alembic upgrade head` + `alembic check` pour prévenir schema drift.
+- Stratégie additive uniquement (pas de breaking migration sur v1).

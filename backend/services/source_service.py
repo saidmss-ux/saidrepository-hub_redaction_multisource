@@ -10,6 +10,7 @@ from backend.repositories.contracts import SourceRepositoryProtocol
 from backend.repositories.source_repository import SourceRepository
 from backend.services.errors import ServiceError
 from backend.services.logging_utils import log_event
+from backend.services.metrics_service import observe_extract
 from backend.services.security import validate_public_http_url
 
 
@@ -88,7 +89,9 @@ def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dic
     if elapsed > settings.extract_timeout_s:
         raise ServiceError(code="extract_timeout", message="Extraction timeout")
 
-    log_event("extract_done", file_id=source.id, mode=mode, elapsed_ms=int(elapsed * 1000), chars=len(extracted))
+    elapsed_ms = int(elapsed * 1000)
+    observe_extract(elapsed_ms)
+    log_event("extract_done", file_id=source.id, mode=mode, elapsed_ms=elapsed_ms, chars=len(extracted))
     return {
         "file_id": source.id,
         "mode": mode,

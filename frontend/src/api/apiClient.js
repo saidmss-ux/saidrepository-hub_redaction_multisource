@@ -1,4 +1,5 @@
 import { messageForCode } from "./errorMessages.js";
+import { resolveApiBaseByEnv } from "./env.js";
 
 function defaultRequestId() {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
@@ -8,13 +9,24 @@ function defaultRequestId() {
 }
 
 export class ApiClient {
-  constructor({ baseUrl = "/api/v1", timeoutMs = 8000, retryCount = 1, retryDelayMs = 200, fetchImpl = fetch, logger = console } = {}) {
+  constructor({
+    baseUrl = resolveApiBaseByEnv(),
+    timeoutMs = 8000,
+    retryCount = 1,
+    retryDelayMs = 200,
+    fetchImpl = fetch,
+    logger = console,
+    getAccessToken = () => null,
+    onUnauthorized = () => {},
+  } = {}) {
     this.baseUrl = baseUrl;
     this.timeoutMs = timeoutMs;
     this.retryCount = retryCount;
     this.retryDelayMs = retryDelayMs;
     this.fetchImpl = fetchImpl;
     this.logger = logger;
+    this.getAccessToken = getAccessToken;
+    this.onUnauthorized = onUnauthorized;
   }
 
   async request(path, { method = "GET", body, headers = {}, requestId } = {}) {
@@ -31,6 +43,10 @@ export class ApiClient {
           requestId: finalRequestId,
           startedAt,
         });
+
+        if (result.meta?.status === 401) {
+          this.onUnauthorized(result);
+        }
 
         if (result.error?.code === "over_capacity" && attempt < this.retryCount) {
           await this.#sleep(this.retryDelayMs * (attempt + 1));
@@ -84,11 +100,13 @@ export class ApiClient {
     const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
     try {
+      const accessToken = this.getAccessToken();
       const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method,
         headers: {
           "content-type": "application/json",
           "x-request-id": requestId,
+          ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
           ...headers,
         },
         body: body == null ? undefined : JSON.stringify(body),
