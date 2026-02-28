@@ -287,3 +287,5 @@ Générer des tests e2e
 
 
 - Product Domain layer ajoutée: `projects`, `documents`, `batch_runs`, `batch_items` avec orchestration service dédiée.
+
+- Opérations: CI/CD avec jobs qualité (tests + build Docker), staging branch deploy, production tag/main deploy.

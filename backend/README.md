@@ -94,3 +94,20 @@ New additive endpoints:
 - `POST /projects/{project_id}/batches/extract`
 
 All responses remain wrapped in `BaseResponse`.
+
+
+## Environment Strategy
+- `local`: SQLite, `DEBUG=true` allowed.
+- `staging`: PostgreSQL required, `DEBUG=false`.
+- `production`: PostgreSQL required, `DEBUG=false`.
+
+Environment files:
+- `.env.local`
+- `.env.staging`
+- `.env.production`
+
+## Deployment & Rollback
+- CI blocks integration when backend/frontend tests fail.
+- Staging deploy is branch-driven (`staging`).
+- Production deploy is controlled by `main` or version tags (`v*`).
+- Rollback strategy: redeploy previous stable image tag and keep DB migration trail in `schema_migrations`.

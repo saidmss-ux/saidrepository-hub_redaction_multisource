@@ -58,3 +58,5 @@ Toute modification technique doit être reflétée dans :
 
 
 - Toute évolution de modèle doit être additive et traçable (migration contrôlée) pour éviter rupture de compatibilité.
+
+- Les paramètres runtime doivent être environment-driven et validés; aucune valeur critique hardcodée hors fallback local.
