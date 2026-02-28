@@ -55,3 +55,8 @@ Toute modification technique doit être reflétée dans :
 - Le contrat `BaseResponse` doit aussi s'appliquer aux erreurs de surcharge (`over_capacity`) et aux erreurs globales non prévues.
 
 - Le frontend doit consommer uniquement des réponses enveloppées `BaseResponse` via un client API centralisé.
+
+
+- Toute évolution de modèle doit être additive et traçable (migration contrôlée) pour éviter rupture de compatibilité.
+
+- Les paramètres runtime doivent être environment-driven et validés; aucune valeur critique hardcodée hors fallback local.

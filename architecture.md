@@ -284,3 +284,8 @@ Générer des tests e2e
 - Middlewares backend: correlation ID (`x-request-id`) + limite de concurrence (retour `over_capacity`).
 
 - Couche frontend d'intégration: `frontend/src/api`, `frontend/src/services`, `frontend/src/state` (séparation API/état/UI).
+
+
+- Product Domain layer ajoutée: `projects`, `documents`, `batch_runs`, `batch_items` avec orchestration service dédiée.
+
+- Opérations: CI/CD avec jobs qualité (tests + build Docker), staging branch deploy, production tag/main deploy.

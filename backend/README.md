@@ -78,3 +78,36 @@ On functional/system error:
 ## Resilience
 - Configurable concurrency guard via `CONCURRENCY_LIMIT`.
 - When capacity is exhausted, API returns contractual error with code `over_capacity` (HTTP 503).
+
+
+## Product Layer (SoT-aligned)
+Product domain entities introduced without breaking `/api/v1` contract:
+- `Project`
+- `Document` (project -> source linkage)
+- `BatchRun` / `BatchItem` (multi-document extraction orchestration)
+
+New additive endpoints:
+- `POST /projects`
+- `GET /projects`
+- `POST /projects/{project_id}/documents`
+- `GET /projects/{project_id}/documents`
+- `POST /projects/{project_id}/batches/extract`
+
+All responses remain wrapped in `BaseResponse`.
+
+
+## Environment Strategy
+- `local`: SQLite, `DEBUG=true` allowed.
+- `staging`: PostgreSQL required, `DEBUG=false`.
+- `production`: PostgreSQL required, `DEBUG=false`.
+
+Environment files:
+- `.env.local`
+- `.env.staging`
+- `.env.production`
+
+## Deployment & Rollback
+- CI blocks integration when backend/frontend tests fail.
+- Staging deploy is branch-driven (`staging`).
+- Production deploy is controlled by `main` or version tags (`v*`).
+- Rollback strategy: redeploy previous stable image tag and keep DB migration trail in `schema_migrations`.

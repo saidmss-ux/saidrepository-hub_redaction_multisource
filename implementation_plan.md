@@ -48,3 +48,11 @@
 - [x] Résilience: garde de concurrence configurable et erreur contractuelle `over_capacity`.
 
 - [x] Couche frontend d'intégration API v1 ajoutée (client centralisé, service façade, état contractuel, retry over_capacity).
+
+
+## Evolution rationale
+- Added Product Layer to align with SoT Fullstack/Stabilisation roadmap (projects + batch multi-documents) while preserving API v1 contract freeze.
+- Data model extended safely (additive tables only) with controlled bootstrap migration marker (`schema_migrations`).
+- Service orchestration added for project batch extraction without changing existing endpoint behaviors.
+
+- [x] Gouvernance opérationnelle ajoutée: stratégie environnements + CI/CD + rollback documenté.

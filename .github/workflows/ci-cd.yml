@@ -1,0 +1,53 @@
+name: ci-cd
+
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["work", "main", "staging"]
+    tags:
+      - "v*"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: pytest -q
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run frontend integration tests
+        run: node --test frontend/tests/apiClient.test.mjs
+
+      - name: Build docker image
+        run: docker build -t docuhub-backend:ci .
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging
+        run: echo "Trigger staging deployment with DEBUG=false and isolated staging DB"
+
+  deploy-production:
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: echo "Trigger production deployment via immutable release artifact"

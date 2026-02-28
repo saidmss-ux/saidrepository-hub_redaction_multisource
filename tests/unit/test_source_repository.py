@@ -1,14 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.db.session import Base
+from backend.db.migrations import bootstrap_schema
 from backend.repositories.source_repository import SourceRepository
 
 
 def test_repository_create_get_list() -> None:
     engine = create_engine("sqlite:///:memory:", future=True)
     Session = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
-    Base.metadata.create_all(bind=engine)
+    bootstrap_schema(engine)
 
     session = Session()
     try:

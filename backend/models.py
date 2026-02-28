@@ -39,3 +39,17 @@ class VideoToTextRequest(BaseModel):
 class AIAssistRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
     api_key_enabled: bool = False
+
+
+class ProjectCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1)
+    description: str = Field(default="")
+
+
+class ProjectDocumentCreateRequest(BaseModel):
+    source_id: int = Field(..., ge=1)
+    title: str = Field(..., min_length=1)
+
+
+class ProjectBatchExtractRequest(BaseModel):
+    mode: ExtractMode = "text"

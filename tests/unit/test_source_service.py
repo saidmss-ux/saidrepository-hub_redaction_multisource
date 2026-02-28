@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.db.session import Base
+from backend.db.migrations import bootstrap_schema
 from backend.services.errors import ServiceError
 from backend.services.source_service import (
     ai_assist,
@@ -20,7 +20,7 @@ from backend.services.source_service import (
 def db_session():
     engine = create_engine("sqlite:///:memory:", future=True)
     TestSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
-    Base.metadata.create_all(bind=engine)
+    bootstrap_schema(engine)
     session = TestSessionLocal()
     try:
         yield session

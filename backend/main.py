@@ -10,8 +10,9 @@ from fastapi.responses import JSONResponse
 from backend.api.v1.router import router as v1_router
 from backend.api.versioning import version_prefix
 from backend.core.config import settings
-from backend.db.models import Source  # noqa: F401 (metadata registration)
-from backend.db.session import Base, engine
+from backend.db.models import BatchItem, BatchRun, Document, Project, Source  # noqa: F401 (metadata registration)
+from backend.db.migrations import bootstrap_schema
+from backend.db.session import engine
 from backend.services.errors import ServiceError
 from backend.services.logging_utils import configure_logging, log_event
 from backend.services.response import fail
@@ -21,7 +22,7 @@ configure_logging()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    bootstrap_schema(engine)
     yield
 
 
