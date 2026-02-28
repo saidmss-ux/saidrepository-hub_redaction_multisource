@@ -1,0 +1,6 @@
+Instructions:
+- Respect strict des contrats JSON définis
+- Génère backend + frontend + tests
+- Valide chaque étape avant implémentation
+- Ne produis pas de code non conforme aux contrats
+- Suis l'ordre d'implémentation verrouillé
