@@ -60,3 +60,21 @@ On functional/system error:
 - On `success=false`, read and render `error.message` for UI feedback.
 - Optionally map `error.code` to localized frontend messages.
 - Loading state should be driven per request lifecycle; clear on any response because contract is always returned.
+
+
+## API Versioning Freeze
+- Current public version: `v1` with strict prefix `/api/v1`.
+- Future migration path: reserve `v2` namespace without breaking `v1` contracts.
+
+## Observability
+- Structured JSON logs are emitted for request lifecycle and service operations.
+- `x-request-id` is accepted from client or auto-generated and returned in responses.
+- Logged events include:
+  - business errors (`service_error`)
+  - system errors (`internal_error`)
+  - extraction duration (`extract_done.elapsed_ms`)
+  - upload/download size metadata (`upload_chars`, `bytes_previewed`)
+
+## Resilience
+- Configurable concurrency guard via `CONCURRENCY_LIMIT`.
+- When capacity is exhausted, API returns contractual error with code `over_capacity` (HTTP 503).

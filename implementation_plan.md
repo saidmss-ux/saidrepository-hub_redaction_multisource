@@ -40,3 +40,11 @@
 - [x] Centralisation des erreurs métier via handler global `ServiceError` et contrat BaseResponse unique.
 
 - [x] Durcissement validation upload (type + taille) et documentation backend prête frontend (`backend/README.md`).
+
+- [x] Freeze contrat v1 (`/api/v1`) et préparation explicite du namespace `v2` sans rupture.
+
+- [x] Observabilité production: logs structurés JSON + `x-request-id` + métriques de durée extraction.
+
+- [x] Résilience: garde de concurrence configurable et erreur contractuelle `over_capacity`.
+
+- [x] Couche frontend d'intégration API v1 ajoutée (client centralisé, service façade, état contractuel, retry over_capacity).

@@ -6,9 +6,15 @@ from sqlalchemy.orm import Session
 
 from backend.core.config import settings
 from backend.models import ExtractMode
+from backend.repositories.contracts import SourceRepositoryProtocol
 from backend.repositories.source_repository import SourceRepository
 from backend.services.errors import ServiceError
+from backend.services.logging_utils import log_event
 from backend.services.security import validate_public_http_url
+
+
+def _repo(session: Session) -> SourceRepositoryProtocol:
+    return SourceRepository(session)
 
 
 def _validate_upload_type(file_type: str) -> str:
@@ -23,20 +29,17 @@ def _validate_upload_type(file_type: str) -> str:
 
 
 def upload_source(session: Session, *, file_name: str, file_type: str, content: str) -> dict:
-    if len(content) > settings.max_upload_chars:
+    content_len = len(content)
+    if content_len > settings.max_upload_chars:
         raise ServiceError(
             code="upload_too_large",
             message="Upload content exceeds configured limit",
-            details={"max_upload_chars": settings.max_upload_chars},
+            details={"max_upload_chars": settings.max_upload_chars, "upload_chars": content_len},
         )
 
     normalized_type = _validate_upload_type(file_type)
-    repo = SourceRepository(session)
-    source = repo.create_source(
-        file_name=file_name,
-        file_type=normalized_type,
-        content=content,
-    )
+    source = _repo(session).create_source(file_name=file_name, file_type=normalized_type, content=content)
+    log_event("upload_saved", file_id=source.id, file_type=source.file_type, upload_chars=content_len)
     return {
         "file_id": source.id,
         "file_name": source.file_name,
@@ -52,28 +55,20 @@ def download_from_url(session: Session, *, url: str) -> dict:
             raw = response.read(settings.max_download_chars)
             content = raw.decode("utf-8", errors="replace")
     except HTTPError as exc:
-        raise ServiceError(
-            code="network_http_error",
-            message="HTTP error while downloading",
-            details={"status": exc.code},
-        )
+        raise ServiceError(code="network_http_error", message="HTTP error while downloading", details={"status": exc.code})
     except URLError as exc:
-        raise ServiceError(
-            code="network_url_error",
-            message="Network error while downloading",
-            details={"reason": str(exc.reason)},
-        )
+        raise ServiceError(code="network_url_error", message="Network error while downloading", details={"reason": str(exc.reason)})
     except TimeoutError:
         raise ServiceError(code="network_timeout", message="Download timeout")
 
     file_name = safe_url.rstrip("/").split("/")[-1] or "downloaded.txt"
-    repo = SourceRepository(session)
-    source = repo.create_source(
+    source = _repo(session).create_source(
         file_name=file_name,
         file_type="txt",
         content=content,
         source_url=safe_url,
     )
+    log_event("download_saved", file_id=source.id, source_url=safe_url, bytes_previewed=len(content))
     return {
         "file_id": source.id,
         "source_url": safe_url,
@@ -84,15 +79,16 @@ def download_from_url(session: Session, *, url: str) -> dict:
 
 def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dict:
     start_time = monotonic()
-    repo = SourceRepository(session)
-    source = repo.get_source(file_id)
+    source = _repo(session).get_source(file_id)
     if not source:
         raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
 
-    if monotonic() - start_time > settings.extract_timeout_s:
+    extracted = source.content[:400] if mode == "summary" else source.content
+    elapsed = monotonic() - start_time
+    if elapsed > settings.extract_timeout_s:
         raise ServiceError(code="extract_timeout", message="Extraction timeout")
 
-    extracted = source.content[:400] if mode == "summary" else source.content
+    log_event("extract_done", file_id=source.id, mode=mode, elapsed_ms=int(elapsed * 1000), chars=len(extracted))
     return {
         "file_id": source.id,
         "mode": mode,
@@ -102,8 +98,7 @@ def extract_content(session: Session, *, file_id: int, mode: ExtractMode) -> dic
 
 
 def list_sources(session: Session) -> dict:
-    repo = SourceRepository(session)
-    items = repo.list_sources()
+    items = _repo(session).list_sources()
     return {
         "items": [
             {
@@ -119,8 +114,7 @@ def list_sources(session: Session) -> dict:
 
 
 def get_source(session: Session, *, file_id: int) -> dict:
-    repo = SourceRepository(session)
-    source = repo.get_source(file_id)
+    source = _repo(session).get_source(file_id)
     if not source:
         raise ServiceError(code="file_not_found", message="Source file not found", details={"file_id": file_id})
     return {

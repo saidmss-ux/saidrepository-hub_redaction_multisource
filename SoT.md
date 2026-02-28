@@ -123,3 +123,7 @@ Un utilisateur peut importer un PDF et rédiger à partir de celui-ci dans la m�
 - Backend stabilisé en architecture modulaire (routers/services/repository) avec persistance SQLite pour le MVP.
 
 - Stabilisation backend orientée intégration frontend: contrat erreur unifié et documentation API backend dédiée.
+
+- Backend prêt intégration fullstack contrôlée: observabilité structurée, request ID, et protection surcharge configurable.
+
+- Intégration frontend-backend renforcée via couche client API v1 centralisée et mapping d'erreurs contractuel.
