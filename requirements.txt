@@ -1,5 +1,5 @@
 fastapi
-uvicorn
-pydantic
+uvicorn[standard]
 sqlalchemy
-pytest
+pydantic
+python-multipart

@@ -1,0 +1,7 @@
+{
+    "builder.serverUrl": "",
+    "builder.command": "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "builder.runDevServer": true,
+    "builder.autoDetectDevServer": true,
+    "builder.launchType": "browser"
+}
