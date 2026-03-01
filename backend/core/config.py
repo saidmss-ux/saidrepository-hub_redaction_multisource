@@ -1,7 +1,13 @@
 import os
 from typing import Any
 
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
+
+# Load environment variables from .env file
+_env_file = os.path.join(os.path.dirname(__file__), '../.env')
+if os.path.exists(_env_file):
+    load_dotenv(_env_file)
 
 
 class Settings(BaseModel):
@@ -59,6 +65,9 @@ class Settings(BaseModel):
     @classmethod
     def _validate_env(cls, value: str) -> str:
         normalized = value.strip().lower()
+        # Map development to local for compatibility
+        if normalized == "development":
+            normalized = "local"
         if normalized not in {"local", "staging", "production"}:
             raise ValueError("app_env must be one of: local, staging, production")
         return normalized
